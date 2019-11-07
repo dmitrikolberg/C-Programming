@@ -6,9 +6,9 @@
 #include <crypt.h>
 #include <string.h>
 
-#define iterationLimit 500000000
+#define maxPassLength 5 // Set expected max password length here
 
-void rotate(int ltr_num, char kword[]);
+void alphabeticToNext(int letter, char kword[]);
 
 int main(int argc, char* argv[])
 {
@@ -19,60 +19,55 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // Initialize password string
-    char c1 = 'A';
-    char c2 = '\0';
-    char c3 = '\0';
-    char c4 = '\0';
-    char c5 = '\0';
-    char c6 = '\0';
-    char pwdout[] = {c1, c2, c3, c4, c5, c6, '\0'};
+    // Initialize password
+    char password[maxPassLength + 1] = {'\0'};
+    password[0] = 'A';
 
-    // Salt calculation
+    // Salt initialization
     char salt[] = {argv[1][0], argv[1][1], '\0'};
 
     // Probe for password
-    for (unsigned int i = 0; i < iterationLimit; i++)
+    while (password[maxPassLength] == '\0')
     {
         // Enrypt current password sample
-        char *hashout = crypt(pwdout, salt);
+        char *hashout = crypt(password, salt);
 
         if (strcmp(argv[1], hashout) == 0)
         {
             // Match found
-            printf("%s\n", pwdout);
+            printf("%s\n", password);
             return 0;
         }
         else
         {
-            rotate(0, pwdout);
+            alphabeticToNext(0, password);
         }
     }
 
     printf("match not found - loop limit reached\n");
-    return 1;
+    return 2;
 }
 
 // Rotates first password letter by one and after full cycle (when it was'z')
 // resets to 'A' and changes next letter(s) by 1
-void rotate(int ltr_num, char kword[])
+void alphabeticToNext(int letter, char kword[])
 {
-    kword[ltr_num] = kword[ltr_num] + 1;
+    kword[letter] = kword[letter] + 1;
 
-    if (kword[ltr_num] == '[') // Ascii '[' == 91, follows ascii 'Z' == 90
+    if (kword[letter] == '[') // Ascii '[' == 91, follows ascii 'Z' == 90
     {
-        kword[ltr_num] = 'a'; // Ascii 'a' == 97
+        kword[letter] = 'a'; // Ascii 'a' == 97
     }
-    if (kword[ltr_num] == '{') // Ascii '{' == 123, follows ascii 'z' == 122
+    if (kword[letter] == '{') // Ascii '{' == 123, follows ascii 'z' == 122
     {
-        kword[ltr_num] = 'A'; // Ascii 'A' == 65
-        rotate(ltr_num + 1, kword);
+        kword[letter] = 'A'; // Ascii 'A' == 65
+        alphabeticToNext(letter + 1, kword); // Rotates next password letter(s)
 
-        // When new letter is initialized, its ascii value of 0 ('\0') changes to 1 (Start Of Heading)
+        // When new letter is initialized, its ascii value of 0 ('\0') changes to 1 ("Start Of Heading")
         // and must be scrolled to 'A'
-        if (kword[ltr_num + 1] == 1) // Ascii "Start of Heading"
+        if (kword[letter + 1] == 1) // Ascii "Start of Heading"
         {
-            kword[ltr_num + 1] = 'A'; // Ascii 'A' == 65
+            kword[letter + 1] = 'A'; // Ascii 'A' == 65
         }
     }
 }
