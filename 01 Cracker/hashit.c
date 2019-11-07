@@ -18,7 +18,7 @@ int main(void)
     clearInputBuffer();
 
     printf("Please type crypt SALT,\nuse alphanumeric characters only, maximum 2 characters:\n");
-    scanf(" %2[0-9A-Za-z]", salt);
+    scanf("%2[0-9A-Za-z]", salt);
 
     printf("Accepted salt: %s\n", salt);
 
@@ -32,6 +32,6 @@ int main(void)
 void clearInputBuffer(void)
 {
     int c;
-    while((c = fgetc( stdin )) != EOF && c != '\n')
+    while ((c = fgetc(stdin)) != EOF && c != '\n')
     ;
 }
