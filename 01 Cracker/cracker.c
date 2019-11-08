@@ -8,7 +8,7 @@
 
 #define maxPassLength 5 // Set expected max password length here
 
-void alphabeticToNext(int letter, char kword[]);
+void setNextAlphabetic(int charIndex, char text[]);
 
 int main(int argc, char* argv[])
 {
@@ -26,12 +26,13 @@ int main(int argc, char* argv[])
     // Salt initialization
     char salt[] = {argv[1][0], argv[1][1], '\0'};
 
-    // Probe for password
+    // Check if password matches
     while (password[maxPassLength] == '\0')
     {
         // Enrypt current password sample
         char *hashout = crypt(password, salt);
 
+        // Compare hash strings
         if (strcmp(argv[1], hashout) == 0)
         {
             // Match found
@@ -40,7 +41,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            alphabeticToNext(0, password);
+            setNextAlphabetic(0, password);
         }
     }
 
@@ -48,26 +49,33 @@ int main(int argc, char* argv[])
     return 2;
 }
 
-// Rotates first password letter by one and after full cycle (when it was'z')
+// Rotates first letter by one and after full cycle (when it was'z')
 // resets to 'A' and changes next letter(s) by 1
-void alphabeticToNext(int letter, char kword[])
+void setNextAlphabetic(int charIndex, char text[])
 {
-    kword[letter] = kword[letter] + 1;
+    text[charIndex] = text[charIndex] + 1;
 
-    if (kword[letter] == '[') // Ascii '[' == 91, follows ascii 'Z' == 90
+    if (text[charIndex] == '[') // When out of uppercase Ascii range; Ascii '[' follows ascii 'Z'.
     {
-        kword[letter] = 'a'; // Ascii 'a' == 97
+        text[charIndex] = 'a'; // Set to beginning of lowercase Ascii range.
     }
-    if (kword[letter] == '{') // Ascii '{' == 123, follows ascii 'z' == 122
+    else if (text[charIndex] == '{') // When out of lowercase Ascii range; Ascii '{' follows ascii 'z'.
     {
-        kword[letter] = 'A'; // Ascii 'A' == 65
-        alphabeticToNext(letter + 1, kword); // Rotates next password letter(s)
+        text[charIndex] = 'A'; // Set to beginning of uppercase Ascii range. Restarts character rotation cycle.
+
+        // At this point character rotation cycle was reset, and we have to change next letter.
+        setNextAlphabetic(charIndex + 1, text); // Rotates next letter(s)
 
         // When new letter is initialized, its ascii value of 0 ('\0') changes to 1 ("Start Of Heading")
         // and must be scrolled to 'A'
-        if (kword[letter + 1] == 1) // Ascii "Start of Heading"
+        if (text[charIndex + 1] == 1) // When new letter was initialized; Ascii "Start of Heading" == 1
         {
-            kword[letter + 1] = 'A'; // Ascii 'A' == 65
+            text[charIndex + 1] = 'A'; // Set to beginning of uppercase Ascii range.
         }
     }
 }
+
+
+
+
+
