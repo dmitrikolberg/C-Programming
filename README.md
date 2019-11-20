@@ -1,5 +1,5 @@
 ### C-Programming
-Contains C source programs written on/for 32 Linux system.
+Contains C source programs written on/for 32 bit Linux system.
 
 ### Contents:
 
